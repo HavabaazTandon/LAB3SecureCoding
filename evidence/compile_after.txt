@@ -1,0 +1,1 @@
+gcc -Wall -Wextra -Wpedantic -std=c11 clean_code.c -o clean_code: SUCCESS

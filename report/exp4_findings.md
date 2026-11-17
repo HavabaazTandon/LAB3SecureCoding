@@ -1,48 +1,62 @@
+# Experiment 4: Dirty-Code Analysis and Standards-Compliant Refactoring
 
-# Experiment 4 - Dirty Code Analysis Findings
+## Aim
+To analyse the faculty-provided C code for dirty-code practices with security impact, refactor it, and compare Cppcheck results before and after correction.
 
-| Line | Finding | Security consequence | Coding standard |
-|---|---|---|---|
-| 5, 7 | Small destination buffer and unsafe strcpy() | Buffer overflow, memory corruption and possible program crash | CERT C STR31-C |
-| 9 | Magic number 75 | Makes code difficult to maintain and modify consistently | Maintainability practice |
-| 11-16 | Deeply nested conditional logic | Makes validation difficult to review and maintain | MISRA C:2012 Rule 15.6 (compound statements) |
-| 18-20 | Dead code using if(0) | Unreachable code increases maintenance complexity | MISRA C:2012 Rules 2.1 and 2.2 |
-| 23 | Unchecked fopen() return value | NULL FILE pointer can cause invalid memory access | CERT C EXP34-C |
-| 24 | Unchecked fprintf() return value | Failed writes may go undetected, resulting in incomplete data | Defensive I/O error handling |
-| 26 | Unchecked fclose() return value | File closing or flushing errors may go undetected | CERT C FIO42-C |
+## Findings Table
 
-## Additional observations
+| No. | Dirty-code practice | Location | Security / code-quality consequence | Relevant standard / guidance |
+|---|---|---|---|---|
+| 1 | Unsafe strcpy and insufficient buffer | dirty_code.c, lines 6–8 | Buffer overflow and possible memory corruption | CERT C STR31-C |
+| 2 | Magic numbers | dirty_code.c, line 10 and lines 12–14 | Reduces readability and maintainability | Secure coding maintainability practice |
+| 3 | Deeply nested conditions | dirty_code.c, lines 12–18 | Makes code difficult to read, review and maintain | MISRA C guidance on control flow |
+| 4 | Dead code | dirty_code.c, lines 20–22 | Unreachable code adds unnecessary complexity | MISRA C:2012 Rules 2.1 and 2.2 |
+| 5 | Unchecked fopen return value | dirty_code.c, line 24 | A NULL file pointer may be passed to fprintf | CERT C EXP34-C |
+| 6 | Unchecked fprintf return value | dirty_code.c, line 25 | Failed writes may go unnoticed | Defensive file-I/O error handling |
+| 7 | Unchecked fclose return value | dirty_code.c, line 27 | File closing or flushing errors may go unnoticed | Defensive file-I/O error handling |
 
-- No explicitly suppressed compiler warnings were present in the supplied snippet.
-- No gets() function was present.
-- The strcpy() operation writes beyond the 10-byte destination buffer.
+## Cppcheck Analysis Before Refactoring
 
-## Refactoring performed
+Command:
+cppcheck --enable=all --inconclusive --std=c11 --suppress=missingIncludeSystem Exp4/dirty_code.c
 
-1. Replaced unsafe string handling with a sufficiently sized initialized const array.
-2. Introduced named constants.
-3. Removed unnecessary nested conditions.
-4. Removed unreachable dead code.
-5. Checked fopen() for failure.
-6. Checked fprintf() for failure.
-7. Checked fclose() for failure.
+Observed results:
+- One buffer-access-out-of-bounds error related to strcpy().
+- Three style warnings for conditions that are always true because marks is assigned 75.
+- The scan also displayed an informational active-checkers message.
 
-## Cppcheck Comparison
+## Refactoring Performed
 
-Original code:
-- Buffer access out of bounds.
-- Three unnecessary condition warnings.
+- Replaced unsafe strcpy() with a sufficiently sized character array.
+- Introduced named constants for marks.
+- Removed unnecessary nested conditions.
+- Removed the unreachable if (0) block.
+- Added a NULL check after fopen().
+- Checked the return value of fprintf().
+- Checked the return value of fclose().
 
-Refactored code:
-- Zero warnings.
-- No reported errors.
+## Cppcheck Analysis After Refactoring
+
+Command:
+cppcheck --enable=all --inconclusive --std=c11 --suppress=missingIncludeSystem clean_code.c
+
+Observed result:
+- No warnings or errors reported.
+- Only the informational active-checkers message was displayed.
 
 ## Compilation and Execution
 
-Compiler: GCC
+Compilation:
+gcc -Wall -Wextra -Wpedantic -std=c11 clean_code.c -o clean_code
 
-Flags: -Wall -Wextra -Wpedantic -std=c11
+Execution:
+./clean_code
 
-Result: Successful compilation without warnings.
+Output:
+Excellent
 
-Program output: Excellent
+The corrected program compiled and executed successfully.
+
+## Result
+
+The original program contained unsafe string handling, magic numbers, deeply nested conditions, dead code and unchecked file operations. After refactoring, Cppcheck reported no warnings or errors, and the corrected program compiled and executed successfully.

@@ -1,12 +1,10 @@
-
 #include <stdio.h>
 
 #define MAX_NAME 50
-#define PASS_MARKS 50
-#define MAX_MARKS 100
 #define EXCELLENT_MARKS 75
 
-int main(void) {
+int main(void)
+{
     const char name[MAX_NAME] = "Alexander Mishra";
     const int marks = EXCELLENT_MARKS;
 
