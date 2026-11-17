@@ -1,0 +1,7 @@
+===== init_fixed =====
+Not ten: 0
+Exit status: 0
+===== leak_fixed =====
+Exit status: 0
+===== double_free_fixed =====
+Exit status: 0
